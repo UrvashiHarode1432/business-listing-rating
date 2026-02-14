@@ -1,0 +1,71 @@
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.action-buttons .btn,
+.rate-btn {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+#modal-rating i {
+  font-size: 32px;
+  color: gold;
+}
+.rating-number {
+  font-weight: bold;
+  margin-left: 6px;
+  color: #333;
+}
+.rating-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.rating-wrapper img {
+  width: 18px;
+  height: 18px;
+}
+
+.rating-number {
+  font-weight: 600;
+  color: #444;
+  font-size: 14px;
+}
+.avg-rating {
+  white-space: nowrap;
+}
+
+#business-table thead {
+  background-color: #f1f3f5;
+}
+
+#business-table thead th {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+#business-table th,
+#business-table td {
+  padding: 14px 12px !important;
+  vertical-align: middle !important;
+}
+
+#business-table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+}
+
+#business-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+#business-table th:nth-child(7),
+#business-table td:nth-child(7),
+#business-table th:nth-child(8),
+#business-table td:nth-child(8),
+#business-table th:nth-child(9),
+#business-table td:nth-child(9) {
+  text-align: center;
+}
