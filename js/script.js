@@ -1,6 +1,6 @@
 $(document).ready(function () {
 
-    const basePath = '/php/Business_listing_rating/images/';
+    const basePath = 'images/';
 
     //readonly Average rating
     $('#business-table .avg-rating').each(function () {
@@ -23,6 +23,8 @@ $(document).ready(function () {
             $('#modal-rating').raty('destroy');
             $('#modal-rating').empty();
         }
+        // Clear cached score so stars always start empty
+        $('#modal-rating').removeData('score').removeAttr('data-score');
 
         $('#modal-rating').raty({
             starType: 'img',
@@ -33,6 +35,7 @@ $(document).ready(function () {
             scoreName: 'rating',
             number: 5,
             half: true,
+            score: 0,
             click: function (score) {
                 $('#modal-rating-value').val(score);
             }
@@ -44,15 +47,12 @@ $(document).ready(function () {
     $('#rating-modal').on('hidden.bs.modal', function () {
 
         $('#rating-form')[0].reset();
-        $('#modal-business-id').val('');
-        $('#modal-business-name').text('');
-        $('#modal-rating-value').val('');
 
-        if ($('#modal-rating').data('raty')) {
+        try {
             $('#modal-rating').raty('destroy');
-            $('#modal-rating').raty('score', 0);
-            $('#modal-rating').empty();   // VERY IMPORTANT
-        }
+        } catch (e) { }
+
+        $('#modal-rating').empty();
     });
 
     //get business id
@@ -74,47 +74,40 @@ $(document).ready(function () {
             data: $(this).serialize(),
             dataType: 'json',
             success: function (response) {
-                console.log("Full Response:", response);
-                console.log("Average Rating:", response.average_rating);
-                console.log("Total Ratings:", response.total_ratings);
-                console.log("Business ID:", response.business_id);
 
                 if (response.status === "success") {
 
                     var businessId = response.business_id;
                     var newAverage = parseFloat(response.average_rating);
-                    console.log("Average:", newAverage);
-                    console.log("Is number:", typeof newAverage);
-                    // Update total rating text
+
                     $('#total-rating-' + businessId)
                         .text(response.total_ratings);
 
-                    // Update number beside stars
                     $('#avg-rating-text-' + businessId)
                         .text(newAverage.toFixed(1));
 
                     var avgCell = $('#avg-rating-' + businessId);
 
-                    // Destroy old instance
                     if (avgCell.data('raty')) {
                         avgCell.raty('destroy');
                     }
 
-                    // Clear old stars
                     avgCell.empty();
                     avgCell.attr('data-score', newAverage);
+
+                    avgCell.removeData('score');
 
                     // Reinitialize with NEW score
                     avgCell.raty({
                         starType: 'img',
-                        path: '', // important when using full image path
+                        path: '',
                         starOff: basePath + 'star-off.png',
                         starOn: basePath + 'star-on.png',
                         starHalf: basePath + 'star-half.png',
                         readOnly: true,
                         half: true,
-                        halfShow: true,     // ⭐ VERY IMPORTANT
-                        precision: true,    // ⭐ REQUIRED for 1.5 etc
+                        halfShow: true,
+                        precision: true,
                         score: newAverage
                     });
                     $('#rating-modal').modal('hide');
@@ -219,7 +212,6 @@ $(document).ready(function () {
 
                     $('#business-table tbody').append(newRow);
 
-                    // ⭐ Initialize empty stars
                     $('#avg-rating-' + id).raty({
                         starType: 'img',
                         starOff: basePath + 'star-off.png',
@@ -277,8 +269,5 @@ $(document).ready(function () {
             }
         });
     });
-
-
-
 
 });
