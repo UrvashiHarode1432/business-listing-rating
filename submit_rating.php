@@ -1,5 +1,6 @@
 <?php
-include ('./config/database.php');
+header('Content-Type: application/json');
+include('./config/database.php');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode([
@@ -15,11 +16,18 @@ $email = trim($_POST['email'] ?? '');
 $phone = trim($_POST['phone'] ?? '');
 $rating = $_POST['rating'] ?? null;
 
-if (empty($business_id) || empty($rating)) {
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Business ID and rating are required'
-    ]);
+$errors = [];
+if (empty($business_id)) $errors[] = 'Business ID is required.';
+if ($rating === '' || $rating === null) $errors[] = 'Rating is required.';
+else {
+    $r = (float) $rating;
+    if ($r < 0.5 || $r > 5) $errors[] = 'Rating must be between 0.5 and 5.';
+}
+if (empty($name) || strlen($name) < 2) $errors[] = 'Name is required (min 2 chars).';
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Valid email is required.';
+if (!preg_match('/^[\d\s\-+()]{7,20}$/', $phone)) $errors[] = 'Valid phone is required.';
+if (!empty($errors)) {
+    echo json_encode(['status' => 'error', 'message' => implode(' ', $errors)]);
     exit;
 }
 
@@ -57,13 +65,7 @@ try {
         ]);
     } else {
         // ✅ RULE 2 → Insert new rating
-        $insert = $conn->prepare('
-            INSERT INTO ratings (business_id, name, email, phone, rating)
-            VALUES (:business_id, :name, :email, :phone, :rating)
-            ON DUPLICATE KEY UPDATE
-            name = VALUES(name),
-            rating = VALUES(rating)
-            ');
+        $insert = $conn->prepare('INSERT INTO ratings (business_id, name, email, phone, rating) VALUES (:business_id, :name, :email, :phone, :rating)');
 
         $insert->execute([
             ':business_id' => $business_id,

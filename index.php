@@ -25,7 +25,15 @@ $result = $business->fetchAll(PDO::FETCH_ASSOC);
         <button class="btn btn-success" id="addBusinessBtn">
             Add Business
         </button>
-        <table class="table table-striped" id="business-table">
+        <div id="global-alert"
+            class="alert alert-success d-none"
+            role="alert">
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+
+        <table class="table table-striped" id="business-table" style="margin-top:50px">
             <thead>
                 <tr>
                     <th>Id</th>
@@ -40,52 +48,56 @@ $result = $business->fetchAll(PDO::FETCH_ASSOC);
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($result as $row) { ?>
-                <tr id="row-<?= $row['id'] ?>">
-                    <td><?= $row['id'] ?></td>
-                    <td><?= $row['name'] ?></td>
-                    <td><?= $row['address'] ?></td>
-                    <td><?= $row['phone'] ?></td>
-                    <td><?= $row['email'] ?></td>
-                    <td class="action-buttons">
-                        <button class="btn btn-warning edit-btn"
-                            data-id="<?= $row['id'] ?>"
-                            data-name="<?= htmlspecialchars($row['name']) ?>"
-                            data-address="<?= htmlspecialchars($row['address']) ?>"
-                            data-phone="<?= htmlspecialchars($row['phone']) ?>"
-                            data-email="<?= htmlspecialchars($row['email']) ?>">
-                            Edit
-                        </button>
-
-                        <button class="btn btn-danger delete-btn"
-                            data-id="<?= $row['id'] ?>">
-                            Delete
-                        </button>
-                    </td>
-
-                    <td>
-                        <div class="rating-wrapper">
-                            <span id="avg-rating-text-<?= $row['id'] ?>" 
-                                class="rating-number">
-                                (<?= number_format($row['average_rating'], 1) ?>)
-                            </span>
-                            <div id="avg-rating-<?= $row['id'] ?>" 
-                                class="avg-rating" 
-                                data-score="<?= $row['average_rating'] ?>">
-                            </div>
-                        </div>
-                    </td>
-                    <td id="total-rating-<?= $row['id'] ?>">
-                        <?= $row['total_ratings'] ?>
-                    </td>
-                    <td>
-                    <button type="button" class="btn btn-primary rate-btn" data-toggle="modal"
-                        data-target="#rating-modal" data-id="<?= $row['id'] ?>" data-name="<?= htmlspecialchars($row['name']) ?>">
-                        Rate Us
-                    </button>
-                    </td>
-                </tr>
-                <?php } ?>
+                <?php if (empty($result)): ?>
+                <tr><td colspan="9" class="text-center text-muted py-4">No businesses yet. Add one to get started.</td></tr>
+                <?php else:
+    foreach ($result as $row): ?>
+                            <tr id="row-<?= $row['id'] ?>">
+                                <td><?= $row['id'] ?></td>
+                                <td><?= htmlspecialchars($row['name']) ?></td>
+                                <td><?= htmlspecialchars($row['address']) ?></td>
+                                <td><?= htmlspecialchars($row['phone']) ?></td>
+                                <td><?= htmlspecialchars($row['email']) ?></td>
+                                <td class="action-buttons">
+                                    <button class="btn btn-warning edit-btn"
+                                        data-id="<?= $row['id'] ?>"
+                                        data-name="<?= htmlspecialchars($row['name']) ?>"
+                                        data-address="<?= htmlspecialchars($row['address']) ?>"
+                                        data-phone="<?= htmlspecialchars($row['phone']) ?>"
+                                        data-email="<?= htmlspecialchars($row['email']) ?>">
+                                        Edit
+                                    </button>
+                                    <button class="btn btn-danger delete-btn"
+                                        data-id="<?= $row['id'] ?>">
+                                        Delete
+                                    </button>
+                                </td>
+                                <td>
+                                    <div class="rating-wrapper">
+                                        <span id="avg-rating-text-<?= $row['id'] ?>" 
+                                            class="rating-number">
+                                            <?= $row['average_rating'] !== null
+                                                ? '(' . number_format($row['average_rating'], 1) . ')'
+                                                : '(0.0)' ?>
+                                        </span>
+                                        <div id="avg-rating-<?= $row['id'] ?>" 
+                                            class="avg-rating" 
+                                            data-score="<?= $row['average_rating'] ?>">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td id="total-rating-<?= $row['id'] ?>">
+                                    <?= $row['total_ratings'] ?>
+                                </td>
+                                <td>
+                                <button type="button" class="btn btn-primary rate-btn" data-toggle="modal"
+                                    data-target="#rating-modal" data-id="<?= $row['id'] ?>" data-name="<?= htmlspecialchars($row['name']) ?>">
+                                    Rate Us
+                                </button>
+                                </td>
+                            </tr>
+                    <?php endforeach;
+endif; ?>
             </tbody>
         </table>
         <!-- Rating Modal content-->
@@ -96,35 +108,32 @@ $result = $business->fetchAll(PDO::FETCH_ASSOC);
                         <h4 class="modal-title">Give Business Rating</h4>
                     </div>
                     <div class="modal-body">
-                        <form id="rating-form">
-                            <input type="hidden" name="business_id" id="modal-business-id">
-                            <div class="form-group">
-                                <label><strong>Business Name:</strong></label>
-                                <p id="modal-business-name" style="font-size:16px; color:#333;"></p>
-                            </div>
-                            <div class="form-group">
-                                <label>Name</label>
-                                <input type="text" name="name" class="form-control"  required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" name="email" class="form-control"  required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Phone</label>
-                                <input type="text" name="phone" class="form-control"  required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Rating</label>
-                                <div id="modal-rating"></div>
-                                <input type="hidden" name="rating" id="modal-rating-value">
-                            </div>
-
-                            <button type="submit" class="btn btn-primary" id="submit-rating">Submit Rating</button>
-                        </form>
+                    <div id="modal-alert" class="alert alert-dismissible fade show" role="alert">
+                    </div>                     
+                    <form id="rating-form">
+                        <input type="hidden" name="business_id" id="modal-business-id">
+                        <div class="form-group">
+                            <label><strong>Business Name:</strong></label>
+                            <p id="modal-business-name" style="font-size:16px; color:#333;"></p>
+                        </div>
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" name="name" class="form-control"  required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" class="form-control"  required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="text" name="phone" class="form-control"  required>
+                        </div>
+                        <div class="form-group">
+                            <label>Rating</label>
+                            <div id="modal-rating"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="submit-rating">Submit Rating</button>
+                    </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -132,50 +141,39 @@ $result = $business->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
-
-        <!-- Add Business Modal -->
          <!-- Business Modal -->
-<div id="businessModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h4 class="modal-title" id="modalTitle">Add Business</h4>
+        <div id="businessModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="modalTitle">Add Business</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="business-modal-alert" class="alert alert-dismissible d-none" role="alert"></div>
+                        <form id="business-form">
+                            <input type="hidden" name="id" id="business-id">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" name="name" id="business-name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Address</label>
+                                <input type="text" name="address" id="business-address" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="text" name="phone" id="business-phone" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" name="email" id="business-email" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-
-            <div class="modal-body">
-                <form id="business-form">
-                    <input type="hidden" name="id" id="business-id">
-
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" name="name" id="business-name" class="form-control" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Address</label>
-                        <input type="text" name="address" id="business-address" class="form-control" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Phone</label>
-                        <input type="text" name="phone" id="business-phone" class="form-control" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" id="business-email" class="form-control" required>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </form>
-            </div>
-
         </div>
-    </div>
-</div>
-
-
     </div>
     
     

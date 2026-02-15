@@ -1,1 +1,19 @@
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.vscode/
+.idea/
+
+# Ignore node modules (if any)
+node_modules/
+
+# Ignore vendor (if using composer)
+vendor/
+
+# Ignore environment files
+.env
+
+# Ignore local database config if it contains password
 config/database.php
