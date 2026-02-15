@@ -243,7 +243,7 @@ $(document).ready(function () {
                         .text(response.message)
                         .fadeIn();
                     setTimeout(function () {
-                        $('#global-alert').fadeOut();;
+                        $('#business-modal-alert').fadeOut();;
                     }, 3000);
 
                     $('#businessModal').on('hidden.bs.modal', function () {
